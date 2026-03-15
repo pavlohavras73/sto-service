@@ -1,0 +1,62 @@
+[2026-03-08 15:01:17,774] [INFO] main: Creating database tables if not exist...
+[2026-03-08 15:01:17,776] [INFO] main: Database ready: sto_database.db
+[2026-03-08 15:01:17,777] [INFO] main: Starting STO Service API v1.0.0
+[2026-03-08 15:04:48,720] [INFO] src.api.clients: Creating client: 9e0e3e41-78ce-420d-aecf-32951404d2de - Ivan Sereda
+[2026-03-08 15:04:48,740] [INFO] src.crud: New client added to DB: 9e0e3e41-78ce-420d-aecf-32951404d2de - Ivan Sereda
+[2026-03-08 15:06:07,302] [INFO] src.api.vehicles: Creating vehicle: 95507e24-ca17-417b-9bb6-be8a05144cbf (string) for client: 9e0e3e41-78ce-420d-aecf-32951404d2de
+[2026-03-08 15:06:07,336] [INFO] src.crud: New vehicle added to DB: 95507e24-ca17-417b-9bb6-be8a05144cbf (string) for client: 9e0e3e41-78ce-420d-aecf-32951404d2de
+[2026-03-08 15:06:52,928] [INFO] src.api.vehicles: Creating vehicle: 4e52ac46-a8b6-47c3-9eaa-d4352abb2823 (string) for client: 9e0e3e41-78ce-420d-aecf-32951404d2de
+[2026-03-08 15:06:52,938] [INFO] src.crud: New vehicle added to DB: 4e52ac46-a8b6-47c3-9eaa-d4352abb2823 (string) for client: 9e0e3e41-78ce-420d-aecf-32951404d2de
+[2026-03-08 15:07:22,650] [INFO] main: Shutting down STO Service API
+[2026-03-08 15:07:37,714] [INFO] main: Creating database tables if not exist...
+[2026-03-08 15:07:37,716] [INFO] main: Database ready: sto_database.db
+[2026-03-08 15:07:37,716] [INFO] main: Starting STO Service API v1.0.0
+[2026-03-08 15:13:36,531] [INFO] main: Shutting down STO Service API
+[2026-03-08 15:15:03,530] [INFO] main: Creating database tables if not exist...
+[2026-03-08 15:15:03,550] [INFO] main: Database ready: sto_database.db
+[2026-03-08 15:15:03,550] [INFO] main: Starting STO Service API v1.0.0
+[2026-03-08 15:15:44,217] [INFO] src.api.clients: Creating client: 62291af8-9794-4c21-8311-51ee7042f516 - Ivan Sereda
+[2026-03-08 15:15:44,248] [INFO] src.crud: New client added to DB: 62291af8-9794-4c21-8311-51ee7042f516 - Ivan Sereda
+[2026-03-08 15:16:37,460] [INFO] src.api.vehicles: Creating vehicle: e595260e-e001-49fc-abfa-a7afa9ecad1c (string) for client: 62291af8-9794-4c21-8311-51ee7042f516
+[2026-03-08 15:16:37,492] [INFO] src.crud: New vehicle added to DB: e595260e-e001-49fc-abfa-a7afa9ecad1c (string) for client: 62291af8-9794-4c21-8311-51ee7042f516
+[2026-03-08 15:16:39,741] [INFO] src.api.vehicles: Creating vehicle: f723e84f-ca62-4f0f-aae4-8156166a6895 (string) for client: 62291af8-9794-4c21-8311-51ee7042f516
+[2026-03-08 15:16:39,779] [INFO] src.crud: New vehicle added to DB: f723e84f-ca62-4f0f-aae4-8156166a6895 (string) for client: 62291af8-9794-4c21-8311-51ee7042f516
+[2026-03-08 15:17:11,061] [INFO] src.api.clients: Creating client: 4889556e-7e3d-425d-95f8-0a9b30e79ff9 - Ivan Sereda
+[2026-03-08 15:17:11,083] [INFO] src.crud: New client added to DB: 4889556e-7e3d-425d-95f8-0a9b30e79ff9 - Ivan Sereda
+[2026-03-08 15:20:35,620] [INFO] main: Shutting down STO Service API
+[2026-03-08 15:20:54,174] [INFO] main: Creating database tables if not exist...
+[2026-03-08 15:20:54,176] [INFO] main: Database ready: sto_database.db
+[2026-03-08 15:20:54,176] [INFO] main: Starting STO Service API v1.0.0
+[2026-03-08 15:22:27,230] [INFO] src.api.clients: Creating client: d811e078-cad5-460b-a40a-d15ef0d3a062 - Stas Hlemov
+[2026-03-08 15:22:27,246] [INFO] src.crud: New client added to DB: d811e078-cad5-460b-a40a-d15ef0d3a062 - Stas Hlemov
+[2026-03-08 15:23:17,093] [INFO] src.api.vehicles: Creating vehicle: c3087592-de69-4ab2-a2af-49a26e7d408e (string) for client: d811e078-cad5-460b-a40a-d15ef0d3a062
+[2026-03-08 15:23:17,122] [INFO] src.crud: New vehicle added to DB: c3087592-de69-4ab2-a2af-49a26e7d408e (string) for client: d811e078-cad5-460b-a40a-d15ef0d3a062
+[2026-03-08 15:23:18,730] [INFO] src.api.vehicles: Creating vehicle: 4cdf60b6-2980-4b1e-aaac-caada1605ce1 (string) for client: d811e078-cad5-460b-a40a-d15ef0d3a062
+[2026-03-08 15:23:18,743] [INFO] src.crud: New vehicle added to DB: 4cdf60b6-2980-4b1e-aaac-caada1605ce1 (string) for client: d811e078-cad5-460b-a40a-d15ef0d3a062
+[2026-03-08 15:24:46,721] [INFO] main: Shutting down STO Service API
+[2026-03-08 15:48:01,858] [INFO] main: Creating database tables if not exist...
+[2026-03-08 15:48:01,866] [INFO] main: Database ready: sto_database.db
+[2026-03-08 15:48:01,866] [INFO] main: Starting STO Service API v1.0.0
+[2026-03-08 16:10:30,462] [INFO] main: Shutting down STO Service API
+[2026-03-08 16:31:20,201] [INFO] main: Creating database tables if not exist...
+[2026-03-08 16:31:20,206] [INFO] main: Database ready: sto_database.db
+[2026-03-08 16:31:20,207] [INFO] main: Starting STO Service API v1.0.0
+[2026-03-08 16:36:01,551] [INFO] src.api.vehicles: Creating vehicle: 7a09e408-4b7f-443f-8754-b0ade7a83725 (Toyota) for client: 62291af8-9794-4c21-8311-51ee7042f516
+[2026-03-08 16:36:01,590] [INFO] src.crud: New vehicle added to DB: 7a09e408-4b7f-443f-8754-b0ade7a83725 (Toyota) for client: 62291af8-9794-4c21-8311-51ee7042f516
+[2026-03-08 16:36:10,356] [INFO] src.api.vehicles: Creating vehicle: f5e14816-8f4f-41ec-8f2b-271cb1ec04b5 (Toyota) for client: 62291af8-9794-4c21-8311-51ee7042f516
+[2026-03-08 16:36:10,383] [INFO] src.crud: New vehicle added to DB: f5e14816-8f4f-41ec-8f2b-271cb1ec04b5 (Toyota) for client: 62291af8-9794-4c21-8311-51ee7042f516
+[2026-03-08 16:43:56,888] [INFO] src.api.clients: Creating client: 6b155de4-25dc-4c56-9dd1-9a74e6c6191d - Alex Dovgun
+[2026-03-08 16:43:56,910] [INFO] src.crud: New client added to DB: 6b155de4-25dc-4c56-9dd1-9a74e6c6191d - Alex Dovgun
+[2026-03-08 16:45:54,131] [INFO] src.api.vehicles: Creating vehicle: 15c2ad38-bf82-4d2b-a252-6788d9b2e566 (Toyota) for client: 6b155de4-25dc-4c56-9dd1-9a74e6c6191d
+[2026-03-08 16:45:54,146] [INFO] src.crud: New vehicle added to DB: 15c2ad38-bf82-4d2b-a252-6788d9b2e566 (Toyota) for client: 6b155de4-25dc-4c56-9dd1-9a74e6c6191d
+[2026-03-08 16:45:55,848] [INFO] src.api.vehicles: Creating vehicle: 5880d5a6-fca6-4e30-b321-2b2c5fe0a4f3 (Toyota) for client: 6b155de4-25dc-4c56-9dd1-9a74e6c6191d
+[2026-03-08 16:45:55,860] [INFO] src.crud: New vehicle added to DB: 5880d5a6-fca6-4e30-b321-2b2c5fe0a4f3 (Toyota) for client: 6b155de4-25dc-4c56-9dd1-9a74e6c6191d
+[2026-03-08 17:47:08,555] [INFO] main: Shutting down STO Service API
+[2026-03-10 13:14:12,251] [INFO] main: Creating database tables if not exist...
+[2026-03-10 13:14:12,261] [INFO] main: Database ready: sto_database.db
+[2026-03-10 13:14:12,261] [INFO] main: Starting STO Service API v1.0.0
+[2026-03-10 13:14:35,513] [INFO] main: Shutting down STO Service API
+[2026-03-10 13:15:02,228] [INFO] main: Creating database tables if not exist...
+[2026-03-10 13:15:02,233] [INFO] main: Database ready: sto_database.db
+[2026-03-10 13:15:02,234] [INFO] main: Starting STO Service API v1.0.0
+[2026-03-10 16:05:40,521] [INFO] main: Shutting down STO Service API
