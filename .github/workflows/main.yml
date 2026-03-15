@@ -1,215 +1,25 @@
-name: STO Service CI Pipeline
+name: STO Service CI/CD
 
 on:
   push:
-    branches:
-      - main
-      - "feature/**"
-  pull_request:
-    branches:
-      - main
-
-# ────────────────────────────────────────────────
-# Variables (equivalent to Azure DevOps variable group)
-# DOCKERHUB_USERNAME and DOCKERHUB_TOKEN come from
-# GitHub Secrets (Settings → Secrets and variables → Actions)
-# ────────────────────────────────────────────────
-env:
-  DOCKER_REPO: pavlohavras73
-  SERVICE_NAME: sto-service
+    branches: [ main ]
 
 jobs:
-
-  # ══════════════════════════════════════════════
-  # STAGE 1 — Pre-Build
-  # ══════════════════════════════════════════════
-  pre-build:
-    name: Pre-Build Analysis
+  build-and-push:
     runs-on: ubuntu-latest
-    outputs:
-      app_version: ${{ steps.calculate_version.outputs.APP_VERSION }}
-
     steps:
-      - name: Checkout repository
+      - name: Checkout code
         uses: actions/checkout@v4
 
-      # ── A4: Print predefined environment variables ──
-      - name: Predefined variables
-        run: |
-          echo "==== Predefined CI Variables ===="
-          echo "RUNNER_TEMP:            $RUNNER_TEMP"
-          echo "RUNNER_WORKSPACE:       $RUNNER_WORKSPACE"
-          echo "GITHUB_WORKSPACE:       $GITHUB_WORKSPACE"
-          echo "GITHUB_REPOSITORY:      $GITHUB_REPOSITORY"
-          echo "GITHUB_REF:             $GITHUB_REF"
-          echo "GITHUB_REF_NAME:        $GITHUB_REF_NAME"
-          echo "GITHUB_SHA:             $GITHUB_SHA"
-          echo "SERVICE_NAME:           $SERVICE_NAME"
-          echo "DOCKER_REPO:            $DOCKER_REPO"
-
-      # ── B3: Calculate next semantic version from Docker Hub ──
-      - name: Calculate App Version
-        id: calculate_version
-        env:
-          DOCKERHUB_USERNAME: ${{ secrets.DOCKERHUB_USERNAME }}
-          DOCKERHUB_TOKEN: ${{ secrets.DOCKERHUB_TOKEN }}
-          MANUALLY_SETUP_APP_VERSION: ${{ vars.MANUALLY_SETUP_APP_VERSION }}
-        run: |
-          # ── Colour helpers (logging.sh equivalent) ──────────
-          GREEN='\033[0;32m'
-          YELLOW='\033[1;33m'
-          RED='\033[0;31m'
-          NC='\033[0m'
-
-          info_msg()    { echo -e "${GREEN}[INFO]  $1${NC}"; }
-          warning_msg() { echo -e "${YELLOW}[WARN]  $1${NC}"; }
-          error_msg()   { echo -e "${RED}[ERROR] $1${NC}"; }
-
-          # ── dockerhub.sh: get latest tag from Docker Hub ────
-          get_docker_image_latest_version() {
-            local repository=$1
-            local user=$2
-            local password=$3
-
-            response=$(curl -s \
-              -H "Content-Type: application/json" \
-              -X POST \
-              -d "{\"username\": \"${user}\", \"password\": \"${password}\"}" \
-              https://hub.docker.com/v2/users/login/)
-
-            token=$(echo "$response" | jq -r .token)
-
-            if [ "$token" == "null" ] || [ -z "$token" ]; then
-              warning_msg "Docker Hub login failed — defaulting to 0.0.0"
-              echo "0.0.0"
-              return
-            fi
-
-            info_msg "Docker Hub login successful"
-
-            tags_response=$(curl -s \
-              -H "Authorization: Bearer $token" \
-              "https://hub.docker.com/v2/repositories/${user}/${repository}/tags?page_size=100")
-
-            latest=$(echo "$tags_response" \
-              | jq -r '.results
-                        | map(select(.content_type == "image" and (.name | test("^[0-9]+\\.[0-9]+\\.[0-9]+$"))))
-                        | max_by(.last_updated)
-                        | .name')
-
-            if [ "$latest" == "null" ] || [ -z "$latest" ]; then
-              echo "0.0.0"
-            else
-              echo "$latest"
-            fi
-          }
-
-          # ── Increment PATCH part of semver ──────────────────
-          increment_patch() {
-            local version=$1
-            IFS='.' read -r major minor patch <<< "$version"
-            patch=$((patch + 1))
-            echo "${major}.${minor}.${patch}"
-          }
-
-          # ── B4: Manual override wins over auto-calculation ──
-          if [ -n "$MANUALLY_SETUP_APP_VERSION" ]; then
-            info_msg "MANUALLY_SETUP_APP_VERSION is set → using $MANUALLY_SETUP_APP_VERSION"
-            NEW_VERSION="$MANUALLY_SETUP_APP_VERSION"
-          else
-            info_msg "MANUALLY_SETUP_APP_VERSION is not set — auto-calculating..."
-
-            CURRENT_VERSION=$(get_docker_image_latest_version \
-              "$SERVICE_NAME" \
-              "$DOCKERHUB_USERNAME" \
-              "$DOCKERHUB_TOKEN")
-
-            info_msg "Latest version on Docker Hub: $CURRENT_VERSION"
-
-            NEW_VERSION=$(increment_patch "$CURRENT_VERSION")
-            info_msg "New version (PATCH+1): $NEW_VERSION"
-          fi
-
-          info_msg "APP_VERSION = $NEW_VERSION"
-
-          # Export for next jobs via GitHub Actions output
-          echo "APP_VERSION=$NEW_VERSION" >> "$GITHUB_OUTPUT"
-          # Also export as env var for subsequent steps in this job
-          echo "APP_VERSION=$NEW_VERSION" >> "$GITHUB_ENV"
-
-      - name: Print calculated version
-        run: |
-          echo "Calculated APP_VERSION = $APP_VERSION"
-
-  # ══════════════════════════════════════════════
-  # STAGE 2 — Project: Build and Test
-  # Runs on both main and feature/* branches
-  # ══════════════════════════════════════════════
-  build-and-test:
-    name: Build and Test
-    runs-on: ubuntu-latest
-    needs: pre-build
-
-    steps:
-      - name: Checkout repository
-        uses: actions/checkout@v4
-
-      - name: Set up Python
-        uses: actions/setup-python@v5
-        with:
-          python-version: "3.11"
-
-      # ── B1: Build — install dependencies (Python / FastAPI project) ──
-      - name: Install dependencies
-        run: |
-          echo "Hello, from Build And Test Job"
-          pip install --upgrade pip
-          pip install -r requirements.txt
-
-      # ── B2: Run unit tests with pytest ──
-      - name: Run Unit Tests
-        run: |
-          pytest tests/ -v --tb=short
-
-      # ── Also build the Docker image to verify it compiles correctly ──
-      - name: Build Docker image (smoke check)
-        run: |
-          VERSION=${{ needs.pre-build.outputs.app_version }}
-          docker build -t ${{ env.DOCKER_REPO }}/${{ env.SERVICE_NAME }}:${VERSION} .
-          echo "Docker image built: ${{ env.DOCKER_REPO }}/${{ env.SERVICE_NAME }}:${VERSION}"
-
-  # ══════════════════════════════════════════════
-  # STAGE 3 — Post-Build
-  # Runs ONLY on the main branch (not feature/*)
-  # ══════════════════════════════════════════════
-  post-build:
-    name: Post-Build
-    runs-on: ubuntu-latest
-    needs: build-and-test
-    if: github.ref == 'refs/heads/main'
-
-    steps:
-      - name: Checkout repository
-        uses: actions/checkout@v4
-
-      - name: Hello from Post-Build Job
-        run: echo "Hello, from Post-Build Job"
-
-      - name: Log in to Docker Hub
+      - name: Login to Docker Hub
         uses: docker/login-action@v3
         with:
           username: ${{ secrets.DOCKERHUB_USERNAME }}
           password: ${{ secrets.DOCKERHUB_TOKEN }}
 
-      # Build and push versioned + latest tags
-      - name: Build and push Docker image
-        run: |
-          VERSION=${{ needs.pre-build.outputs.app_version }}
-          IMAGE=${{ secrets.DOCKERHUB_USERNAME }}/${{ env.SERVICE_NAME }}
-
-          docker build -t ${IMAGE}:${VERSION} -t ${IMAGE}:latest .
-
-          docker push ${IMAGE}:${VERSION}
-          docker push ${IMAGE}:latest
-
-          echo "Pushed ${IMAGE}:${VERSION} and ${IMAGE}:latest to Docker Hub"
+      - name: Build and Push Docker Image
+        uses: docker/build-push-action@v5
+        with:
+          context: .
+          push: true
+          tags: ${{ secrets.DOCKERHUB_USERNAME }}/sto-service:latest
