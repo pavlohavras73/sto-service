@@ -1,0 +1,14 @@
+services:
+  sto-service:
+    build: .
+    container_name: sto-service
+    ports:
+      - "8000:8000"
+    env_file:
+      - .env
+    volumes:
+      - sto_data:/app/data
+    restart: unless-stopped
+
+volumes:
+  sto_data:

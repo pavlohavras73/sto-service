@@ -77,7 +77,7 @@ def test_create_and_get_client():
 
 
 def test_get_nonexistent_client():
-    response = client.get("/clients/99999")
+    response = client.get("/clients/00000000-0000-0000-0000-000000000000")
     assert response.status_code == 404
 
 
