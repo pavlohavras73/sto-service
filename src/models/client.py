@@ -13,6 +13,7 @@ logger = logging.getLogger(__name__)
 
 class ClientModel(Base):
     __tablename__ = "clients"
+    __table_args__ = {"schema": "sto_khnu"}
 
     id = Column(String, primary_key=True, index=True)
     name = Column(String, nullable=False)

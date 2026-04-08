@@ -36,54 +36,51 @@ tags_metadata = [
 
 
 def _seed_test_data() -> None:
-    from src.database import SessionLocal
+    """Seed in-memory storage with test data when TEST_MODE=True."""
+    from src.dependencies import get_client_storage, get_vehicle_storage
     from src.models.client import Client
     from src.models.vehicle import Vehicle
-    import src.crud as crud
 
-    db = SessionLocal()
-    try:
-        # Only seed if DB is empty
-        if crud.get_clients(db):
-            logger.info("DB already has data — skipping seed")
-            return
+    # Get the singleton in-memory instances
+    client_storage = next(iter([s for s in [get_client_storage.__wrapped__ if hasattr(get_client_storage, '__wrapped__') else None] if s]), None)
 
-        client1 = Client(name="Іван Петренко", phone="+380501234567")
-        client2 = Client(name="Олена Коваль", phone="+380671234567")
-        crud.create_client(db, client1)
-        logger.info(f"Test client seeded: {client1.id} - {client1.name}")
-        crud.create_client(db, client2)
-        logger.info(f"Test client seeded: {client2.id} - {client2.name}")
+    # Access singleton services directly
+    from src.dependencies import _client_service, _vehicle_service
 
-        vehicle1 = Vehicle(brand="Toyota", plate="AA1234BB", vehicle_type="car", owner_id=client1.id)
-        vehicle2 = Vehicle(brand="Volvo", plate="BB5678CC", vehicle_type="truck", owner_id=client1.id)
-        vehicle3 = Vehicle(brand="Honda", plate="CC9012DD", vehicle_type="car", owner_id=client2.id)
-        crud.create_vehicle(db, vehicle1)
-        logger.info(f"Test vehicle seeded: {vehicle1.id} - {vehicle1.brand}")
-        crud.create_vehicle(db, vehicle2)
-        logger.info(f"Test vehicle seeded: {vehicle2.id} - {vehicle2.brand}")
-        crud.create_vehicle(db, vehicle3)
-        logger.info(f"Test vehicle seeded: {vehicle3.id} - {vehicle3.brand}")
-    finally:
-        db.close()
+    if _client_service.get_clients():
+        logger.info("In-memory storage already has data — skipping seed")
+        return
+
+    client1 = Client(name="Іван Петренко", phone="+380501234567")
+    client2 = Client(name="Олена Коваль", phone="+380671234567")
+    _client_service.create_client(client1)
+    _client_service.create_client(client2)
+    logger.info(f"Test clients seeded: {client1.id}, {client2.id}")
+
+    vehicle1 = Vehicle(brand="Toyota", plate="AA1234BB", vehicle_type="car", owner_id=client1.id)
+    vehicle2 = Vehicle(brand="Volvo", plate="BB5678CC", vehicle_type="truck", owner_id=client1.id)
+    vehicle3 = Vehicle(brand="Honda", plate="CC9012DD", vehicle_type="car", owner_id=client2.id)
+    _vehicle_service.create_vehicle(vehicle1)
+    _vehicle_service.create_vehicle(vehicle2)
+    _vehicle_service.create_vehicle(vehicle3)
+    logger.info(f"Test vehicles seeded: {vehicle1.id}, {vehicle2.id}, {vehicle3.id}")
 
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
-    from src.database import engine, Base
-    # Import models so SQLAlchemy registers them before create_all
+    # Import models so SQLAlchemy registers them (needed for Alembic introspection)
     import src.models.client  # noqa: F401
     import src.models.vehicle  # noqa: F401
 
-    logger.info("Creating database tables if not exist...")
-    Base.metadata.create_all(bind=engine)
-    logger.info("Database ready: sto_database.db")
-
     settings = config.get_settings()
     logger.info(f"Starting STO Service API v{settings.APPLICATION_VERSION}")
+
     if settings.TEST_MODE:
-        logger.info("TEST_MODE enabled — seeding test data...")
+        logger.info("TEST_MODE enabled — using in-memory storage, seeding test data...")
         _seed_test_data()
+    else:
+        logger.info("Production mode — using PostgreSQL database (migrations managed by migration job)")
+
     yield
     logger.info("Shutting down STO Service API")
 

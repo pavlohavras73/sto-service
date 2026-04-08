@@ -38,19 +38,28 @@ docker run -p 8000:8000 sto-service
 
 The app is a FastAPI service managing an auto service station (СТО) — clients and their vehicles.
 
-**Request flow:** HTTP request → `main.py` router → `src/api/{clients,vehicles}.py` (FastAPI router) → `src/crud.py` (DB access) → SQLite via SQLAlchemy.
+**Request flow:** HTTP request → `main.py` router → `src/api/{clients,vehicles}.py` (FastAPI router) → `src/dependencies.py` (DI factory) → `ClientRepository`/`VehicleRepository` (PostgreSQL) or `ClientService`/`VehicleService` (in-memory cache).
 
-**Key design pattern — dual-purpose model files:** Each file in `src/models/` contains both the SQLAlchemy ORM class (e.g. `ClientModel`) and the Pydantic schemas (e.g. `Client`, `CreateClientRequest`) for that resource. The ORM class maps to a DB table; the Pydantic classes handle validation and serialization.
+**Storage abstraction pattern:**
+- `src/services/client_storage.py` — abstract `ClientStorage` ABC
+- `src/services/vehicle_storage.py` — abstract `VehicleStorage` ABC
+- `src/services/client_service.py` — in-memory dict implementation (used when `TEST_MODE=True`)
+- `src/services/vehicle_service.py` — in-memory dict implementation (used when `TEST_MODE=True`)
+- `src/db/client_repository.py` — SQLAlchemy PostgreSQL implementation
+- `src/db/vehicle_repository.py` — SQLAlchemy PostgreSQL implementation
+- `src/dependencies.py` — DI factory: returns cache or DB implementation based on `TEST_MODE`
 
-**`src/crud.py`** is the only place that touches the database. All functions accept a `Session` as their first argument and return Pydantic model instances (not ORM objects). API routers receive a DB session via `Depends(get_db)` and pass it directly to crud functions — no business logic lives in routers.
+**Key design pattern — dual-purpose model files:** Each file in `src/models/` contains both the SQLAlchemy ORM class (e.g. `ClientModel`) and the Pydantic schemas (e.g. `Client`, `CreateClientRequest`). ORM models use `schema='sto_khnu'` for PostgreSQL.
 
-**Database:** SQLite file `sto_database.db` auto-created on first startup via `Base.metadata.create_all()` in the `lifespan` handler in `main.py`. IDs are UUIDs stored as strings in SQLite.
+**Database:** PostgreSQL via SQLAlchemy. Schema: `sto_khnu`. Migrations managed by **Alembic** — the web service does NOT apply migrations; the `sto-migration` Docker service handles that.
 
-**Data model:** `Client` (1) → `Vehicle` (many). `Vehicle.owner_id` is a FK to `clients.id`. `vehicle_type` is a string enum: `'car'` or `'truck'`.
+**Data model:** `Client` (1) → `Vehicle` (many). `Vehicle.owner_id` is a FK to `sto_khnu.clients.id`. `vehicle_type` is a string enum: `'car'` or `'truck'`.
 
-**Settings:** `config.py` uses `pydantic-settings` with `.env` file support. Settings are cached via `@lru_cache`. Currently: `APPLICATION_VERSION` and `TEST_MODE`.
+**Settings:** `config.py` uses `pydantic-settings` with `.env` file support. Settings: `APPLICATION_VERSION`, `TEST_MODE`, `DATABASE_URL`.
 
-**Tests** (`tests/test_main.py`): use `TestClient` (synchronous) with a separate `test_sto.db` SQLite file, overriding the `get_db` dependency. Each test function gets a fresh schema via the `autouse` `setup_db` fixture.
+**Tests** (`tests/test_main.py`): override `get_client_storage` and `get_vehicle_storage` DI to return fresh in-memory `ClientService`/`VehicleService` instances per test. No DB required.
+
+**Migration job** (`migration/main.py`): standalone console app that runs `alembic upgrade head`. Built as separate Docker image `sto-migration`. Runs before `sto-service` via `depends_on: service_completed_successfully`.
 
 ## CI/CD
 

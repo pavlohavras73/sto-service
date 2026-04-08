@@ -1,14 +1,58 @@
 services:
+  postgres:
+    image: postgres:16
+    container_name: sto_postgres
+    restart: always
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER:-sto_user}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-sto_password}
+      POSTGRES_DB: ${POSTGRES_DB:-sto_db}
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U $${POSTGRES_USER} -d $${POSTGRES_DB}"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
+  sto-migration:
+    build:
+      context: .
+      dockerfile: migration/Dockerfile
+    container_name: sto-migration
+    restart: "no"
+    environment:
+      DATABASE_URL: postgresql://${POSTGRES_USER:-sto_user}:${POSTGRES_PASSWORD:-sto_password}@postgres:5432/${POSTGRES_DB:-sto_db}
+      APPLICATION_VERSION: ${APPLICATION_VERSION:-1.0.0}
+      TEST_MODE: "false"
+    depends_on:
+      postgres:
+        condition: service_healthy
+
   sto-service:
-    build: .
+    build:
+      context: .
+      dockerfile: Dockerfile
     container_name: sto-service
     ports:
       - "8000:8000"
+    environment:
+      DATABASE_URL: postgresql://${POSTGRES_USER:-sto_user}:${POSTGRES_PASSWORD:-sto_password}@postgres:5432/${POSTGRES_DB:-sto_db}
+      APPLICATION_VERSION: ${APPLICATION_VERSION:-1.0.0}
+      TEST_MODE: "false"
     env_file:
       - .env
     volumes:
-      - sto_data:/app/data
+      - sto_logs:/app/logs
     restart: unless-stopped
+    depends_on:
+      postgres:
+        condition: service_healthy
+      sto-migration:
+        condition: service_completed_successfully
 
 volumes:
-  sto_data:
+  postgres_data:
+  sto_logs:

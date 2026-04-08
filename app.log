@@ -60,3 +60,13 @@
 [2026-03-10 13:15:02,233] [INFO] main: Database ready: sto_database.db
 [2026-03-10 13:15:02,234] [INFO] main: Starting STO Service API v1.0.0
 [2026-03-10 16:05:40,521] [INFO] main: Shutting down STO Service API
+[2026-03-31 06:26:04,037] [INFO] main: Creating database tables if not exist...
+[2026-03-31 06:26:04,043] [INFO] main: Database ready: sto_database.db
+[2026-03-31 06:26:04,043] [INFO] main: Starting STO Service API v1.0.0
+[2026-03-31 06:26:17,847] [INFO] src.api.clients: Creating client: 4729d021-5775-4806-98a2-084ba2e524f8 - Іван Петренко
+[2026-03-31 06:26:17,872] [INFO] src.crud: New client added to DB: 4729d021-5775-4806-98a2-084ba2e524f8 - Іван Петренко
+[2026-03-31 06:26:17,923] [INFO] src.api.clients: Creating client: 23772f92-8fca-4d85-983a-1ac78917647d - Олена Коваль
+[2026-03-31 06:26:17,931] [INFO] src.crud: New client added to DB: 23772f92-8fca-4d85-983a-1ac78917647d - Олена Коваль
+[2026-03-31 06:26:43,731] [INFO] src.api.vehicles: Creating vehicle: eb78b76d-9205-4b99-8aea-8d78d78cf531 (Toyota) for client: 4729d021-5775-4806-98a2-084ba2e524f8
+[2026-03-31 06:26:43,751] [INFO] src.crud: New vehicle added to DB: eb78b76d-9205-4b99-8aea-8d78d78cf531 (Toyota) for client: 4729d021-5775-4806-98a2-084ba2e524f8
+[2026-03-31 06:27:31,278] [WARNING] src.api.clients: Client 00000000-0000-0000-0000-000000000000 not found

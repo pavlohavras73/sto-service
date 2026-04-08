@@ -13,12 +13,13 @@ logger = logging.getLogger(__name__)
 
 class VehicleModel(Base):
     __tablename__ = "vehicles"
+    __table_args__ = {"schema": "sto_khnu"}
 
     id = Column(String, primary_key=True, index=True)
     brand = Column(String, nullable=False)
     plate = Column(String, nullable=False)
     vehicle_type = Column(String, nullable=False)
-    owner_id = Column(String, ForeignKey("clients.id"), nullable=False)
+    owner_id = Column(String, ForeignKey("sto_khnu.clients.id"), nullable=False)
 
 
 # --- Pydantic schemas ---
